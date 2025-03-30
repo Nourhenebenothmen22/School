@@ -1,5 +1,13 @@
 const mongoose=require('mongoose')
+const UserModel = require('./User.model')
 const EtudiantSchema=new mongoose.Schema({
+    cv:{
+        type:String
+    },
+    niveau:{
+        type:String
+    }
 
 })
-module.exports=mongoose.model('Etudiant',EtudiantSchema)
+const EtudiantModel=UserModel.discriminator('Etudiant',EtudiantSchema)
+module.exports=EtudiantModel

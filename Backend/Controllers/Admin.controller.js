@@ -2,7 +2,7 @@ const AdminModel=require("../Modules/Admin.model")
 module.exports={
     createAdmin:async(req,res)=>{
       try {
-        const Admin=await AdminModel(req.body)
+        const Admin=new AdminModel(req.body)
         await Admin.save()
         res.status(200).json({
             success:true,
