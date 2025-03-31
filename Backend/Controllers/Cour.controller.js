@@ -2,7 +2,14 @@ const courModel = require('../Modules/Cour.model');
 
 module.exports = {
   createCour: async (req, res) => {
+    
     try {
+      if(req.files){
+        req.body["galleries"]=req.files.length<=0 ? []: req.files.map((file)=>({
+            image:file.filename
+
+        }))
+       }
       const cour = new courModel(req.body)
       await cour.save();
 
@@ -99,18 +106,28 @@ module.exports = {
       updateCours:async(req,res)=>{
         try {
             const id=req.params.id
-            const update=await courModel.findByIdAndUpdate(id,req.body,{new:true})
-            if (!update) {
+            const existingCour=await courModel.findByIdAndUpdate(id,req.body,{new:true})
+            if (!existingCour) {
                 return res.status(404).json({
                   success: false,
                   message: 'Cours non trouvé',
                   data: null,
                 });
               }
+              if (req.files.length > 0) {
+                // Ajouter les nouvelles images à la galerie existante
+                req.body["galleries"] = [
+                    ...existingCour.galleries, // Conserver les anciennes images
+                    ...req.files.map((file) => ({ image: file.filename })) // Ajouter les nouvelles
+                ];
+            } else {
+                // Ne pas modifier la galerie si aucune nouvelle image n'est envoyée
+                req.body["galleries"] = existingCour.galleries;
+            }
             res.status(200).json({
                 success:true,
                 message:'les sont mise a jour',
-                data:update
+                data:existingCour
             })
         } catch (error) {
             console.error('Erreur lors de la mise à jour du cours :', error);
